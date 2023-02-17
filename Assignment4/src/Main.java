@@ -47,8 +47,7 @@ public class Main {
                     tree.visit(p);
                     break;
                 case 3:
-                    p = new Node(obj);
-                    int height = tree.height(p);
+                    int height = tree.height(tree.root);
                     System.out.println("Height: " + height);
                     break;
                 case 4:
@@ -93,11 +92,11 @@ public class Main {
                     tree.deleteNode(code);
                     break;
                 case 14:
-                    obj = new Phone(125, "Samsung", 10050, 2019, 150);
-                    obj = new Phone(332, "iPhone", 14250, 2021, 175);
-                    obj = new Phone(452, "Vivo", 7050, 2022, 95);
-                    obj = new Phone(99, "Oppo", 9050, 2017, 155);
-                    obj = new Phone(678, "Vertue", 4055, 2020, 205); 
+                    tree.insert(new Phone(125, "Samsung", 10050, 2019, 150));
+                    tree.insert(new Phone(332, "iPhone", 14250, 2021, 175));
+                    tree.insert(new Phone(452, "Vivo", 7050, 2022, 95));
+                    tree.insert(new Phone(99, "Oppo", 9050, 2017, 155));
+                    tree.insert(new Phone(678, "Vertue", 4055, 2020, 205));
                     System.out.println("Loaded successfully");
                     break;
             }
