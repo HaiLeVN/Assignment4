@@ -188,30 +188,52 @@ public class AVLTree {
     }
 
     public Phone find_Min_price() {
-        Node p = root;
-        while (p.left != null) {
-            p = p.left;
+        if (root == null) {
+            return null;
         }
-        Phone minPricePhone = p.info;
+        Node nodeL = root;
+        int minPriceL = root.info.getPrice();
+        while (nodeL != null) {
+            if (nodeL.info.getPrice() < minPriceL) {
+                minPriceL = nodeL.info.getPrice();
+            }
+            nodeL = nodeL.left;
+        }
 
-        // Traverse the tree to find the phone with the minimum price
-        find_Min_price_helper(root, minPricePhone);
+        int minPriceR = root.info.getPrice();
+        Node nodeR = root;
+        while (nodeR != null) {
+            if (nodeR.info.getPrice() < minPriceR) {
+                minPriceR = nodeR.info.getPrice();
+            }
+            nodeR = nodeR.right;
+        }
 
-        return minPricePhone;
+        if (minPriceL <= minPriceR) {
+            int min = minPriceL;
+            Node node1 = root;
+            while (node1 != null) {
+                if (node1.info.getPrice() == min) {
+                    return node1.info;
+                } else if (node1.info.getPrice() < min) {
+                    min = node1.info.getPrice();
+                }
+                node1 = node1.left;
+            }
+        } else {
+            int min = minPriceR;
+            Node node2 = root;
+            while (node2 != null) {
+                if (node2.info.getPrice() == min) {
+                    return node2.info;
+                } else if (node2.info.getPrice() < min) {
+                    min = node2.info.getPrice();
+                }
+                node2 = node2.right;
+            }
+        }
+        return null;
     }
-
-    private void find_Min_price_helper(Node node, Phone minPricePhone) {
-        if (node == null) {
-            return;
-        }
-        if (node.info.getPrice() < minPricePhone.getPrice()) {
-            minPricePhone = node.info;
-        }
-        find_Min_price_helper(node.left, minPricePhone);
-        find_Min_price_helper(node.right, minPricePhone);
-    }
-
-
     public Phone find_Newest_Phone() {
         if (root == null) {
             return null;
