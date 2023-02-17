@@ -19,11 +19,20 @@ public class AVLTree {
     AVLTree() {
         root = null;
     }
-
-    public Phone input() {
+    boolean isEmpty() {
+        return (root == null);
+    }
+    public Phone input(AVLTree tree) {
         Scanner sc = new Scanner(System.in);
-        System.out.print("\nEnter Phone id: ");
-        int id = sc.nextInt();
+        int id;
+        do {
+            System.out.print("\nEnter Phone id: ");
+            id = sc.nextInt();
+            sc.nextLine();
+            if (tree.searchID(id) != null) {
+                System.out.println("This id already exists. Please enter another id.");
+            }
+        } while (tree.searchID(id) != null);
         System.out.print("\nEnter name: ");
         String name = sc.nextLine();
         System.out.print("\nEnter price: ");
@@ -35,32 +44,58 @@ public class AVLTree {
         Phone phone = new Phone(id, name, price, year, amount);
         return phone;
     }
-
-    public void insert(Phone x) {
-        Node node = new Node(x);
-        if (root == null) {
-            root = node;
-        } else {
-            Node cur = root;
-            Node f = null;
-            while (cur != null) {
-                if (cur.info.ID == x.ID) {
-                    System.out.println("Key " + x.ID + " is existed");
-                    return;
-                }
-                f = cur;
-                if (cur.info.ID > x.ID) {
-                    cur = cur.left;
-                } else {
-                    cur = cur.right;
-                }
-            }
-            if (f.info.ID > x.ID) {
-                f.left = node;
+    private Phone searchID(int id) {
+        Node node = root;
+        while (node != null) {
+            if (id == node.info.getID()) {
+                return node.info;
+            } else if (id < node.info.getID()) {
+                node = node.left;
             } else {
-                f.right = node;
+                node = node.right;
             }
         }
+        return null;
+    }
+    public void insert(Phone x) {
+        Node newNode = new Node(x);
+
+        if (root == null) {
+            root = newNode;
+            return;
+        }
+
+        Node current = root;
+        Node parent = null;
+
+        while (true) {
+            parent = current;
+
+            if (x.ID < current.info.ID) {
+                current = current.left;
+                if (current == null) {
+                    parent.left = newNode;
+                    return;
+                }
+            } else {
+                current = current.right;
+                if (current == null) {
+                    parent.right = newNode;
+                    return;
+                }
+            }
+        }
+    }
+
+    private Node findMin(Node p) {
+        if (p == null) {
+            System.out.println("Not found");
+            return null;
+        }
+        while (p.left != null) {
+            p = p.left;
+        }
+        return p;
     }
 
     public void visit(Node p) {
@@ -69,8 +104,7 @@ public class AVLTree {
         }
         System.out.print(p.info + " ");
     }
-
-    public int height(Node p) {
+    int height(Node p) {
         if (p == null) {
             return 0;
         } else {
@@ -84,32 +118,27 @@ public class AVLTree {
         }
     }
 
-    public int balanceFactor(Node p) {
-        if (p == null) {
+    int balanceFactor(Node node) {
+        if (node == null) {
             return 0;
         }
-        return height(p.left) - height(p.right);
+        return height(node.left) - height(node.right);
     }
 
-    public void breadth() {
-        if (root == null) {
-            System.out.println("AVL Tree is empty");
-            return;
+    void breadth() {
+        Queue<Node> q = new LinkedList<Node>();
+        if (root != null) {
+            q.add(root);
         }
-        System.out.println(root.info.getID() + " ");
-        breathTraversalHelper(root);
-    }
-
-    private void breathTraversalHelper(Node root) {
-        Queue<Node> NodeQueue = new LinkedList<Node>();
-        NodeQueue.add(root);
-        while (!NodeQueue.isEmpty()) {
-            Node frontNode = NodeQueue.peek();
-            visit(frontNode);
-            if (frontNode.left != null) {
-                NodeQueue.add(frontNode.right);
+        while (!q.isEmpty()) {
+            Node p = q.remove();
+            visit(p);
+            if (p.left != null) {
+                q.add(p.left);
             }
-            NodeQueue.remove();
+            if (p.right != null) {
+                q.add(p.right);
+            }
         }
     }
 
@@ -124,7 +153,7 @@ public class AVLTree {
     public void inOrder(Node p) {
         if (p != null) {
             inOrder(p.left);
-            System.out.print(p.info.ID + " ");
+            visit(p);
             inOrder(p.right);
         }
     }
@@ -133,34 +162,22 @@ public class AVLTree {
         if (p != null) {
             postOrder(p.left);
             postOrder(p.right);
-            System.out.print(p.info.ID + " ");
+            visit(p);
         }
     }
 
-    public Node search(Phone x) {
-        Node t = root;
-        while (t != null) {
-            if (x.ID < t.info.ID) {
-                t = t.left;
-            } else if (x.ID > t.info.ID) {
-                t = t.right;
-            } else {
-                return t;
-            }
-        }
-        return null;
+    public Node search(Phone x){
+        return searchByID(root,x);
     }
-
-    public Node search(Node p, int x) {
-        if (p == null) {
+    private Node searchByID(Node root, Phone key) {
+        if(root == null){
             return null;
-        }
-        if (p.info.ID == x) {
-            return p;
-        } else if (p.info.ID > x) {
-            return search(p.left, x);
-        } else {
-            return search(p.right, x);
+        }if(root.info.getID() == key.getID()){
+            return root;
+        }if(root.info.getID() < key.getID()){
+            return searchByID(root.left,key);
+        }else{
+            return searchByID(root.right,key);
         }
     }
 
@@ -168,14 +185,11 @@ public class AVLTree {
         if (root == null) {
             return null;
         }
-
         Node current = root;
         while (current.left != null) {
             current = current.left;
         }
-
         return current.info;
-
     }
 
     public Phone find_Newest_Phone() {
@@ -191,159 +205,81 @@ public class AVLTree {
         return current.info;
     }
 
-    public Phone find_Max_Value() {
-        if (root == null) {
+    Phone find_Max_Value() {
+        Node p = root;
+        Phone max = null;
+        while (p != null) {
+            if (max == null || p.info.price * p.info.amount > max.price * max.amount) {
+                max = p.info;
+            }
+            if (p.left != null && max.price * max.amount < p.left.info.price * p.left.info.amount) {
+                p = p.left;
+            } else if (p.right != null && max.price * max.amount < p.right.info.price * p.right.info.amount) {
+                p = p.right;
+            } else {
+                break;
+            }
+        }
+        return max;
+    }
+    public void deleteByCopying(int x) {
+        root = deleteByCopying(root, x);
+    }
+
+    private Node deleteByCopying(Node node, int x) {
+        if (node == null) {
             return null;
         }
 
-        Node current = root;
-        Phone maxPhone = null;
-        int maxPriceAmount = Integer.MIN_VALUE;
-
-        while (current != null) {
-            int priceAmount = current.info.price * current.info.amount;
-            if (priceAmount > maxPriceAmount) {
-                maxPriceAmount = priceAmount;
-                maxPhone = current.info;
+        if (x < node.info.ID) {
+            node.left = deleteByCopying(node.left, x);
+        } else if (x > node.info.ID) {
+            node.right = deleteByCopying(node.right, x);
+        } else {
+            if (node.left == null) {
+                return node.right;
+            } else if (node.right == null) {
+                return node.left;
             }
 
-            if (current.left != null) {
-                priceAmount = current.left.info.price * current.left.info.amount;
-                if (priceAmount > maxPriceAmount) {
-                    maxPriceAmount = priceAmount;
-                    maxPhone = current.left.info;
-                }
-            }
-
-            current = current.right;
+            Node temp = findMin(node.right);
+            node.info = temp.info;
+            node.right = deleteByCopying(node.right, temp.info.ID);
         }
 
-        return maxPhone;
-
+        return node;
     }
-
     public void deleteByMerging(int x) {
-        Node p = search(root, x);
-        if (p == null) {
-            System.out.println("Key " + x + " does not exist, deletion failed");
-            return;
-        }
-        Node f = null, q = root;
-        while (q != p) {
-            f = q;
-            if (q.info.ID > p.info.ID) {
-                q = q.left;
-            } else {
-                q = q.right;
-            }
-        }
-        //1.p has no child
-        if (p.left != null && p.right != null) {
-            if (f == null) {
-                root = p.left;
-            } else if (f.left == p) {
-                f.left = null;
-            } else {
-                f.right = null;
-            }
-        } //2. p has left child only
-        else if (p.left != null && p.right != null) {
-            if (f == null) {
-                p.left = root;
-            } else if (f.left == p) {
-                f.left = p.left;
-            } else {
-                f.right = p.left;
-            }
-        } //3. p has right child only
-        else if (p.left != null && p.right != null) {
-            if (f == null) {
-                root = p.right;
-            } else if (f.left == p) {
-                f.left = p.right;
-            } else {
-                f.right = p.right;
-            }
-        } //4. p has both child
-        else if (p.left != null && p.right != null) {
-            q = p.left;
-            Node t = null;
-            while (q.right != null) {
-                t = q;
-                q = q.right;
-            }
-            Node rp = p.right;
-            q.right = rp;
-            if (f == null) {
-                root = p.left;
-            } else if (f.left == p) {
-                f.left = p.left;
-            } else {
-                f.right = p.left;
-            }
-        }
+        root = deleteByMerging(root, x);
     }
 
-    public void deleteByCopy(int x) {
-        Node p = search(root, x);
-        if (p == null) {
-            System.out.println("Key " + x + " does not exist, deletion failed");
-            return;
+    private Node deleteByMerging(Node node, int x) {
+        if (node == null) {
+            return null;
         }
-        Node f = null;
-        Node q = root;
-        while (q != p) {
-            f = q;
-            if (p.info.ID > q.info.ID) {
-                q = q.left;
-            } else {
-                q = q.right;
-            }
-        }
-        //1. p has no child 
-        if (p.left != null && p.right != null) {
-            if (f == null) {
-                root = p.left;
-            } else if (f.left == p) {
-                f.left = null;
-            } else {
-                f.right = null;
-            }
-        } //2. p has left child only
-        else if (p.left != null && p.right != null) {
-            if (f == null) {
-                p.left = root;
-            } else if (f.left == p) {
-                f.left = p.left;
-            } else {
-                f.right = p.left;
-            }
-        } //3. p has right child only
-        else if (p.left != null && p.right != null) {
-            if (f == null) {
-                root = p.right;
-            } else if (f.left == p) {
-                f.left = p.right;
-            } else {
-                f.right = p.right;
-            }
-        } //4. p has both child
-        else if (p.left != null && p.right != null) {
-            q = p.left;
-            Node t = null;
-            while (q.right != null) {
-                t = q;
-                q = q.right;
-            }
-            p.info = q.info;
-            if (f == null) {
-                q.left = p.left;
-            } else {
-                f.right = q.left;
-            }
-        }
-    }
 
+        if (x < node.info.ID) {
+            node.left = deleteByMerging(node.left, x);
+        } else if (x > node.info.ID) {
+            node.right = deleteByMerging(node.right, x);
+        } else {
+            if (node.left == null) {
+                return node.right;
+            } else if (node.right == null) {
+                return node.left;
+            }
+
+            Node temp = node.left;
+            while (temp.right != null) {
+                temp = temp.right;
+            }
+
+            temp.right = node.right;
+            node = node.left;
+        }
+
+        return node;
+    }
     public void deleteNode(int x) {
         Scanner sc = new Scanner(System.in);
         int num;
@@ -351,7 +287,7 @@ public class AVLTree {
         num = Integer.parseInt(sc.nextLine());
         try {
             if (num == 1) {
-                deleteByCopy(x);
+                deleteByCopying(x);
             }
             if (num == 2) {
                 deleteByMerging(x);
@@ -359,5 +295,63 @@ public class AVLTree {
         } catch (NumberFormatException ex) {
             System.out.println("PLEASE ENTER THE NUMBER 1-2 !!! ");
         }
+    }
+    
+    //These are AVL Tree necessary methods, if you want to reBalance the AVL TREE
+    
+    public void reBalance() {
+        root = balance(root);
+    }
+
+    private Node balance(Node node) {
+        if (node == null) {
+            return null;
+        }
+
+        int bf = balanceFactor(node);
+
+        if (bf > 1) {
+            if (balanceFactor(node.left) >= 0) {
+                node = rotateLL(node);
+            } else {
+                node = rotateLR(node);
+            }
+        } else if (bf < -1) {
+            if (balanceFactor(node.right) <= 0) {
+                node = rotateRR(node);
+            } else {
+                node = rotateRL(node);
+            }
+        }
+
+        node.left = balance(node.left);
+        node.right = balance(node.right);
+        return node;
+    }
+
+    private Node rotateLL(Node node) {
+        Node leftChild = node.left;
+        node.left = leftChild.right;
+        leftChild.right = node;
+        return leftChild;
+    }
+
+    private Node rotateRR(Node node) {
+        Node rightChild = node.right;
+        node.right = rightChild.left;
+        rightChild.left = node;
+        return rightChild;
+    }
+
+    private Node rotateLR(Node node) {
+        Node leftChild = node.left;
+        node.left = rotateRR(leftChild);
+        return rotateLL(node);
+    }
+
+    private Node rotateRL(Node node) {
+        Node rightChild = node.right;
+        node.right = rotateLL(rightChild);
+        return rotateRR(node);
     }
 }

@@ -11,8 +11,11 @@
 public class Node {
     Phone info; //use info.ID as the key value for node
     Node left,right;
+    int height;
     
     Node(Phone x) {
         this.info = x;
+        left = right = null;
+        height = 1;
     }
 }

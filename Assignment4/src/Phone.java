@@ -26,6 +26,10 @@ public class Phone {
         this.amount = amount;
     }
 
+    Phone(int code) {
+        this.ID = code;
+    }
+
     public int getID() {
         return ID;
     }
